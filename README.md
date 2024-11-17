@@ -11,6 +11,7 @@
 
 ### Project Lists
 |   Project Name    |   Started Date  |    Finished Date   |    Notes   |
+|-------------------|-----------------|--------------------|------------|
 |   Haru Clothing   | Nov 17, 2024    |                    |            |
 
 ---
@@ -27,6 +28,7 @@
 
 ### Certificates I've got From Coursera
 |       Course Title                |       Course Provider     |       Type        |
+|-----------------------------------|---------------------------|-------------------|
 | Become a Javascript Developer     |           Scrimba         |   Specialization  |
 | Frontend Development              |           Scrimba         |   Specialization  |
 | Learn to Work with APIs           |           Scrimba         |   Specialization  |
