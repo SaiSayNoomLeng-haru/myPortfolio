@@ -7,7 +7,14 @@ export default {
   theme: {
     extend: {
       animation: {
-        'loading-spinner' : 'spin 4s linear infinite'
+        'loading-spinner' : 'spin 4s linear infinite',
+        'sliding' : 'slider 15s linear infinite'
+      },
+      keyframes: {
+        slider : {
+          '0%' : {transform: 'translate(0%)'},
+          '100%': {transform: 'translate(-100%)'}
+        }
       },
       colors: {
         'custom-orange' : '#f2b263',
@@ -16,17 +23,31 @@ export default {
         'custom-green' : '#29a65f',
       },
       screens: {
-        'sm' : '25em',
         'md' : '35em',
-        'lg' : '45em'
+        'lg' : '45em',
+        'max-35': { max: '34.9em'}
       },
       container: {
         center: true,
-        padding: '1rem',
+        padding: {
+          DEFAULT : '1rem',
+          md : '.5rem',
+          lg: '4rem'
+        }
       },
       fontFamily: {
         'outfit' : ["Outfit", "sans-serif"],
-        'poppins' : ["Poppins", 'sans-serif']
+        'poppins' : ["Poppins", 'sans-serif'],
+        'cursive' : ["Mrs Saint Delafield", "cursive"]
+      },
+      gridTemplateRows: {
+        'footer': 'repeat(4, minmax(0, min-content)'
+      },
+      dropShadow:{
+        'date-box' : '-3px -3px 0 #fff' 
+      },
+      gridTemplateColumns: {
+        'shop' : '200px 1fr'
       }
     },
   },
