@@ -15,7 +15,6 @@ export async function loader(){
 
 const AboutUs = () => {
     const team = useLoaderData()
-    console.log(team)
     return(
         <section className="space-y-5 my-10">
             <PageTitle destination='about us'/>
@@ -28,10 +27,10 @@ const AboutUs = () => {
                 <p>Haru <GoDotFill className="inline text-custom-orange" /> CEO</p>
             </div>
 
-            <div className="grid md:grid-cols-2 md:grid-rows-2 my-3 gap-2 place-content-center max-w-[80%] mx-auto">
-                    <img src="/assets/images/haru01.jpg" alt="" loading="lazy" className="md:row-span-2"/>
-                    <img src='/assets/images/haru02.jpg' alt="" loading="lazy"/>
-                    <img src='/assets/images/haru03.jpg' alt='' loading="lazy" className="self-end" />
+            <div className="grid md:grid-cols-2 md:grid-rows-2 my-3 gap-2 max-w-[80%] mx-auto">
+                    <img src="/assets/images/haru01.jpg" alt="" loading="lazy" className="md:row-span-2 md:place-self-end"/>
+                    <img src='/assets/images/haru02.jpg' alt="" loading="lazy" className="md:self-end"/>
+                    <img src='/assets/images/haru03.jpg' alt='' loading="lazy" className="md:self-start" />
             </div>
 
             <div className="bg-custom-orange text-black p-10 flex flex-col md:flex-row gap-5 justify-center items-center max-w-[80%] mx-auto">
@@ -73,7 +72,7 @@ const AboutUs = () => {
                     {team
                         .map(member => (
                             <div key={member.id} >
-                            <img src={member.imgUrl} alt="" className="h-[300px] aspect-square"/>
+                            <img src={member.imgUrl} alt="" className="h-full mx-auto"/>
                             <p>{member.name}</p>
                             <p>{member.position}</p>
                         </div>

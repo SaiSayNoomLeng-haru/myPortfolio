@@ -1,36 +1,95 @@
 import classNames from "classnames";
-import { memo, useState } from "react";
-import CtaLink from "../Utilities Components/CtaLink";
+import { memo, useCallback, useContext, useMemo, useState } from "react";
 import Banner from "../Utilities Components/Banner";
 import Button from "../Utilities Components/Button";
-import { getBlogs, getProducts } from "../Api";
-import { useLoaderData } from "react-router-dom";
+import { getBlogs, getProducts, getReview } from "../Api";
+import { useLoaderData, useLocation, useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import BlogCard from "../Utilities Components/Blog-Card/BlogCardIndex";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import ProductCard from "../Utilities Components/Product-Card/ProductCardIndex";
 import Hero from "../Utilities Components/Hero";
 import SubscribeEmail from "../Utilities Components/SubscribeEmail";
+import UnorderList from "../Utilities Components/Undorder-List/UnorderList";
+import ListItems from "../Utilities Components/Undorder-List/ListItems";
+import ReviewContainer from "../Utilities Components/Review-Container/Review";
+import { AppContext } from "../App";
 
 export async function loader(){
    const loadProducts = await getProducts();
    const loadBlogs = await getBlogs();
+   const loadReview = await getReview();
 
    const products = loadProducts.products;
 
    const topSellerProducts = products.filter(product => product.rating > 4);
-
+  
    const topDiscountedProducts = products.filter(product => product.discount > 10 ).sort((a,b) => b.discount - a.discount);
-
-   const instagramImg = products.map(product => product?.imageUrl[1]?.img2);
+ 
+   const instagramImg = products.map(product => product.imageUrl[0]);
 
    const blogs = loadBlogs.blogs;
 
-   return { topSellerProducts, topDiscountedProducts, blogs, instagramImg };
+   return { loadProducts,topSellerProducts, topDiscountedProducts, blogs, instagramImg, loadReview };
 }
 
 const Home = () => {
-    const { topDiscountedProducts, topSellerProducts, instagramImg, blogs } = useLoaderData();
+    const { topDiscountedProducts, topSellerProducts, instagramImg, blogs, loadProducts, loadReview } = useLoaderData() 
+    || 
+    {
+        topDiscountedProducts: [],
+        topSellerProducts: [],
+        instagramImg: [],
+        blogs: [],
+        loadReview: [],
+        loadProducts: []
+    }
+
+    const reviews = loadReview.reviews;
+    const [ currentReview, setCurrentReview] = useState(0);
+    const { handleCart, handleFav } = useContext(AppContext);
+
+    const nextReviewSlide = () => {
+        setCurrentReview(prevReview => (
+            (prevReview + 1) % reviews.length
+        ))
+    }
+
+    const prevReviewSlide = () => {
+        setCurrentReview(prevReview => (
+            prevReview === 0 ? reviews.length - 1 : prevReview - 1
+        ))
+    }
+
+   const productCount = useCallback((categoryName) => (
+        loadProducts.products.filter(product => product.category === categoryName ).length 
+   ), [loadProducts.products])
+
+    const womenItems = [
+        'blazers',
+        't-shirts',
+        'blouses',
+        'dresses',
+        'jackets',
+        'coats',
+        'jeans'
+    ]
+
+    const menItems = [
+        'blazers',
+        't-shirts',
+        'shirts',
+        'jackets',
+        'coats',
+        'jeans'
+    ]
+
+    const accessoriesItem = [
+        'handbags',
+        'watches',
+        'sunglasses',
+        'hats'
+    ]
     
     // classes
     const homeCategoryClass = classNames(
@@ -41,12 +100,8 @@ const Home = () => {
         'bg-white text-center p-3 flex flex-col gap-2 md:container'
     )
 
-    const homeTopsellerContainerClass = classNames(
+    const productContainerClass = classNames(
         'flex overflow-x-scroll gap-2 scroll-smooth'
-    )
-
-    const homeTopDiscountClass = classNames(
-        'flex overflow-x-scroll gap-2 scroll-smooth snap-center'
     )
 
     const homeInstagram = classNames(
@@ -54,109 +109,118 @@ const Home = () => {
     )
 
     const testimonialContainerClass = classNames(
-        'grid grid-cols-2 gap-2 p-5'
+        'flex flex-col custom-container'
     )
 
     const blogsContainerClass = classNames(
-        'flex overflow-x-scroll gap-2 scroll-smooth p-5'
+        'flex flex-col md:flex-row overflow-x-scroll gap-10 md:gap-5 scroll-smooth p-5'
     )
 
     return(
-        <section className="space-y-10">
+        <section className="space-y-10 mb-10">
             <Hero 
                 title='Step into Style: your Ultimate Fashion Destination'
                 content='Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo in cum nesciunt repellat et beatae.'
-                link='shop'
+                link='products'
                 imgUrl='/assets/images/hero.png'
                 badge='50% OFF Summer Super Sale'
             />
 
-            <Banner className="md:max-w-[80%] md:mx-auto"/>
+            <Banner className="custom-container"/>
 
             <div className={homeCategoryClass}>
-                <Link to='shop' className="flex flex-col gap-2 bg-custom-accent p-5 bg-womenwears md:row-span-2">
+                <Link to='women' className="flex flex-col gap-2 bg-custom-accent p-5 bg-womenwears md:row-span-2">
                     <p className="inline-block">
-                        <span className="font-semibold bg-white">2500+</span>
-                        Items
+                        <span className="font-semibold bg-custom-orange text-white px-10">
+                           {productCount('women')}
+                           &nbsp;Items
+                        </span>
                     </p>
 
                     <h2 className="text-3xl font-semibold">For Women's</h2>
 
                     <p className="max-w-[50%] text-slate-500">Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam, distinctio?</p>
 
-                    <ul>
-                        <li>Blazers</li>
-                        <li>T-Shirts and Blouses</li>
-                        <li>Dresses</li>
-                        <li>Jackets & Coats</li>
-                        <li>Jeans</li>
-                        <li>Knit</li>
-                        <li>Sarees</li>
-                    </ul>
+                    <UnorderList>
+                        {womenItems.map(item => (
+                            <ListItems key={item} className='capitalize text-custom-dark'>
+                                {item}
+                            </ListItems>
+                        ))}
+                    </UnorderList>
                 </Link>
 
-                <Link to='shop' className="flex flex-col gap-2 bg-custom-accent p-5 bg-menwears">
+                <Link to='men' className="flex flex-col gap-2 bg-custom-accent p-5 bg-menwears">
                     <p className="inline-block">
-                        <span className="font-semibold bg-white">1500+</span>
-                        Items
+                    <span className="font-semibold bg-custom-orange text-white px-10">
+                            {productCount('men')}
+                            &nbsp; Items
+                        </span>
                     </p>
 
                     <h2 className="text-3xl font-semibold">For Men's</h2>
 
                     <p className="max-w-[50%] text-slate-500">Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam, distinctio?</p>
 
-                    <ul>
-                        <li>T-Shirts and Blouses</li>
-                        <li>Jackets & Coats</li>
-                        <li>Jeans</li>
-                    </ul>
+                    <UnorderList>
+                        {menItems.map(item => (
+                            <ListItems key={item} className='capitalize text-custom-dark'>
+                                {item}
+                            </ListItems>
+                        ))}
+                    </UnorderList>
                 </Link>
 
-                <Link to='shop' className="flex flex-col gap-2 bg-custom-accent p-5 bg-accessories">
+                <Link to='products' className="flex flex-col gap-2 bg-custom-accent p-5 bg-accessories">
                     <p className="inline-block">
-                        <span className="font-semibold bg-white">1500+</span>
-                        Items
+                    <span className="font-semibold bg-custom-orange text-white px-10">
+                            {productCount('accessories')}
+                            &nbsp; Items
+                        </span>
                     </p>
 
                     <h2 className="text-3xl font-semibold">Accessories</h2>
 
                     <p className="max-w-[50%] text-slate-500">Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam, distinctio?</p>
 
-                    <ul>
-                        <li>HandBags</li>
-                        <li>Watches</li>
-                        <li>Sunglasses</li>
-                        <li>hat</li>
-                    </ul>
+                    <UnorderList>
+                        {accessoriesItem.map(item => (
+                            <ListItems key={item} className='capitalize text-custom-dark'>
+                                {item}
+                            </ListItems>
+                        ))}
+                    </UnorderList>
                 </Link>
             </div>
 
             <div className=" flex flex-col gap-3 p-5">
                 <p className="text-lg">Our products</p>
                 <h2 className="text-3xl font-bold">Our Top Seller Products</h2>
-                <div className={homeTopsellerContainerClass}>
-                    {  topSellerProducts
-                            .map(product => (
-                                <ProductCard key={product.id} {...product} className="flex flex-col gap-3 bg-custom-accent p-3 min-w-[300px]">
-                                   <div className="relative">
-                                        <ProductCard.Image />
-                                        <ProductCard.DiscountBadge className="absolute top-1 left-1" />
-                                        <ProductCard.Action className='absolute top-1 right-1'>
-                                            <ProductCard.ToWishList />
+                <div className={productContainerClass}>
+                    { topSellerProducts
+                        .map(product => (
+                            <ProductCard key={product.id} {...product} className="flex flex-col gap-3 bg-custom-accent p-3 min-w-[300px] h-[600px]">
+                                <div className="relative">
+                                    <ProductCard.Image />
+                                    <ProductCard.DiscountBadge className="absolute top-1 left-1" />
+                                    <ProductCard.Action className='absolute top-1 right-1'>
+                                        <ProductCard.ToWishList onClick={() => handleFav(product)} />
+                                        <Link className="flex items-center justify-center bg-white rounded-full p-3 active:bg-custom-orange" to={`products/${product.id}`}>
                                             <ProductCard.ToDetail />
-                                            <ProductCard.AddToCart />
-                                        </ProductCard.Action>
-                                   </div>
-                                   <div className="flex flex-col">
-                                        <div className="flex justify-between">
-                                            <ProductCard.Type />
-                                            <ProductCard.Rating />
-                                        </div>
-                                        <ProductCard.Name />
-                                        <ProductCard.Price />
-                                   </div>
-                                </ProductCard>
-                            ))}
+                                        </Link>
+                                        <ProductCard.AddToCart onClick={() => handleCart(product)}/>
+                                    </ProductCard.Action>
+                                </div>
+                                <div className="flex flex-col">
+                                    <div className="flex justify-between">
+                                        <ProductCard.Type />
+                                        <ProductCard.Rating />
+                                    </div>
+                                    <ProductCard.Name />
+                                    <ProductCard.Price />
+                                </div>
+                            </ProductCard>
+                    ))}
                 </div>
             </div>
            
@@ -164,24 +228,26 @@ const Home = () => {
                 title='25% Off All Fashion Favorites - Limited Time!'
                 badge='Limited Time Offers'
                 content='Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde earum, consequatur sed optio ea voluptatum.'
-                link='shop'
+                link='products'
                 imgUrl='/assets/images/hero2.png'
             />
             
             <div className=" flex flex-col gap-3 p-5">
                 <p className="text-lg">Today Deals</p>
                 <h2 className="text-3xl font-bold">Deals of the Day</h2>
-                <div className={homeTopDiscountClass}>
+                <div className={productContainerClass}>
                     {topDiscountedProducts.map(item => (
-                        <ProductCard key={item.id} {...item} className="flex gap-3 bg-custom-accent p-3 min-w-[500px]">
+                        <ProductCard key={item.id}  {...item} className="flex gap-3 bg-custom-accent p-3 min-w-[500px] ">
                             <div className="relative flex-1">
                                 <ProductCard.Image className="max-h-[300px]" />
                                 <ProductCard.DiscountBadge className="absolute top-1 left-1"/>
                                 <ProductCard.Action className='absolute top-1 right-1'>
-                                    <ProductCard.ToWishList />
-                                    <ProductCard.ToDetail />
-                                    <ProductCard.AddToCart />
-                                    </ProductCard.Action>
+                                    <ProductCard.ToWishList onClick={() => handleFav(item)}/>
+                                    <Link className="flex items-center justify-center bg-white rounded-full p-3 active:bg-custom-orange" to={`products/${item.id}`}>
+                                        <ProductCard.ToDetail />
+                                    </Link>
+                                    <ProductCard.AddToCart onClick={() => handleCart(item)}/>
+                                </ProductCard.Action>
                             </div>
                             <div className="flex flex-col flex-1 gap-3">
                                 <ProductCard.Type />
@@ -189,7 +255,6 @@ const Home = () => {
                                 <ProductCard.Price />
                                 <ProductCard.Rating />
                                 <ProductCard.Detail />
-                                <CtaLink linkTo='shop' className="self-start mt-1"/>
                             </div>
                         </ProductCard>
                     ))}
@@ -201,25 +266,35 @@ const Home = () => {
                 <h2 className="font-bold capitalize text-3xl">Follow us on instagram</h2>
                 <a href="https://www.instagram.com" className="flex gap-2 max-w-1/2 md:w-1/5 translate-x-[-200%] animate-sliding mt-5">
                 {instagramImg.map((item,index) => (
-                    <img key={index} src={item} alt='products images from instagram' aria-label={`product photos from instagram`} className="h-[300px] min-w-[200px]"/>
+                    <img key={index} src={item} alt='products images from instagram' aria-label={`${item}'s photo from Instagram`} loading="lazy" className="h-[300px] min-w-[200px]"/>
                 ))}
                 </a>
             </div>
 
             <div className={testimonialContainerClass}>
-                <p className="font-semibold col-span-full">Testimonial</p>
-                <h2 className="text-3xl font-bold col-span-1">What Our Clients Say</h2>
-                <div className="justify-self-end">
-                    <Button className="bg-custom-orange">
-                        <FaArrowLeft />
-                    </Button>
-                    <Button className="bg-custom-dark text-white ml-2">
-                        <FaArrowRight />
-                    </Button>
+                <p>Testimonial</p>
+                <div className="flex justify-between">
+                    <h2 className="text-3xl font-semibold">What Our Clients Say</h2>
+                    <div className="space-y-2 md:space-x-3">
+                        <Button onClick={nextReviewSlide} className="bg-custom-dark text-white active:bg-custom-orange active:text-black">
+                            <FaArrowLeft />
+                        </Button>
+
+                        <Button onClick={prevReviewSlide} className="bg-custom-dark text-white active:bg-custom-orange active:text-black">
+                            <FaArrowRight />
+                        </Button>
+                    </div>
                 </div>
 
-                <div className="">
-
+                <div>
+                    { reviews.length > 0 ? (
+                        <ReviewContainer >
+                            <ReviewContainer.Image
+                            {...reviews[currentReview]}/>
+                            <ReviewContainer.Content 
+                            {...reviews[currentReview]}/>
+                        </ReviewContainer>
+                    ) : null }
                 </div>
             </div>
 
@@ -228,10 +303,12 @@ const Home = () => {
                 <h2 className="text-3xl font-bold">Our Latest News & Blogs</h2>
                 <div className={blogsContainerClass}>
                     {blogs.map(blog => (
-                        <BlogCard key={blog.id} {...blog}>
-                            <BlogCard.Header />
-                            <BlogCard.Body />
-                        </BlogCard>
+                        <Link to={`blogs/${blog.id}`}  key={blog.id} >
+                            <BlogCard {...blog}>
+                                <BlogCard.Header />
+                                <BlogCard.Body />
+                            </BlogCard>
+                        </Link>
                     ))}
                 </div>  
             </div>
@@ -244,7 +321,6 @@ const Home = () => {
                 <p className="text-sm text-slate-400">Get 20% off on your first order just by subscribing to our newsletter.</p>
                 
                 <SubscribeEmail />
-                
             </div>
             
         </section>

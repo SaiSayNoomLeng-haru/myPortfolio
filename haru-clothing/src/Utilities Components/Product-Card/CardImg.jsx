@@ -4,7 +4,7 @@ import { ProductCardContext } from "./ProductCard";
 
 export default function CardImg({className = ''}){
     const { imageUrl, name } = useContext(ProductCardContext);
-    const mainImg = imageUrl[0].img1;
+    const mainImg = imageUrl[0]
     const imgClass = classNames(
         'object-cover',
         'h-[400px]',

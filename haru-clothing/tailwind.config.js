@@ -25,7 +25,7 @@ export default {
       screens: {
         'md' : '35em',
         'lg' : '45em',
-        'max-35': { max: '34.9em'}
+        'max-35': { max: '44.9em'}
       },
       container: {
         center: true,
@@ -47,7 +47,13 @@ export default {
         'date-box' : '-3px -3px 0 #fff' 
       },
       gridTemplateColumns: {
-        'shop' : '200px 1fr'
+        'shop' : '200px 1fr',
+        'cart' : '1fr 300px',
+        'cart-item' : '1fr repeat(3, minmax(100px, 150px))',
+        'product-description' : '200px 1fr'
+      },
+      gridTemplateRows: {
+        'product' : 'repeat(2, min-content'
       }
     },
   },

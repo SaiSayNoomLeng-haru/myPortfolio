@@ -1,11 +1,12 @@
-import { memo, useCallback, useMemo } from "react"
+import { memo, useCallback, useContext, useMemo, useState } from "react"
 import { getProducts } from "../Api"
-import { useLoaderData, useSearchParams } from "react-router-dom";
+import { Link, useLoaderData, useSearchParams } from "react-router-dom";
 import PageTitle from "../Utilities Components/PageTitle";
 import classNames from "classnames";
 import Checkbox from "../Utilities Components/Checkbox-Filter/Checkbox";
 import ProductCard from '../Utilities Components/Product-Card/ProductCardIndex';
 import Banner from "../Utilities Components/Banner";
+import { AppContext } from "../App";
 
 export async function loader(){
     const loadProducts = await getProducts();
@@ -17,6 +18,8 @@ export async function loader(){
 const Shop = () => {
     const products = useLoaderData()
     const [ searchParams, setSearchParams ] = useSearchParams();
+    const { handleCart, handleFav } = useContext(AppContext);
+    
 
     const handleFilter = useCallback((key, value) => {
         setSearchParams(prevParams => {
@@ -42,24 +45,24 @@ const Shop = () => {
     const filters = useMemo(() => (
         {
             category: ['men', 'women'],
-            types: ['t-shirt', 'jacket', 'coat', 'sweater', 'pajamas', 'handbag', 'sportwears', 'hat', 'shoes', 'glasses', 'watches'],
-            brands: ['puma', 'gucci', 'nike', 'adidas', 'saint-laurent', 'louis-vuitton', 'rolex', 'normal'],
-            colors: ['white', 'black', 'gray', 'green', 'red', 'yellow', 'blue'],
-            sizes: ['s', 'm', 'l', 'xl', 'xxl']
+            type: ['t-shirt', 'jacket', 'coat', 'sweater', 'pajamas', 'handbag', 'sportwears', 'hat', 'shoes', 'glasses', 'watches'],
+            color: ['white', 'black', 'gray', 'green', 'red', 'yellow', 'blue'],
+            size: ['s', 'm', 'l', 'xl', 'xxl']
         }
     ), [])
 
     const renderFilterItems = useCallback((filterType, filterItem) => {
+        const selectedFilters = searchParams.getAll(filterType)
        return filterItem.map(item => (
-            <Checkbox 
+                <Checkbox
                 key={item}
                 item={item}
                 filterType={filterType}
+                checked={selectedFilters.includes(item)}
                 handleFilter={handleFilter}
             />
         ))
     }, [handleFilter])
-
 
     const renderFilters = useCallback(() => (
         Object.entries(filters).map(([key, value]) => (
@@ -70,29 +73,26 @@ const Shop = () => {
             </div>
         ))
     ), [filters, renderFilterItems])
-   
-    const selectedFilters = useMemo(() => {
-        const selected = {};
-
-        Object.keys(filters).forEach(filter => {
-            const values = searchParams.getAll(filter);
-            if(values.length){
-                selected[filter] = values;
-            }
-        })
-
-        return selected;
-    }, [searchParams])
 
     const displayProducts = useMemo(() => {
-        return Object.entries(selectedFilters).map((type, value) => console.log(value))
-    } , [products, selectedFilters])
-   
-
-
+        const activeFilters = Object.fromEntries(
+            Object.keys(filters).map(key => [key, searchParams.getAll(key)])
+    );
+    
+        return products.filter(product => {
+            return Object.entries(activeFilters).every(([filterType, filterValues]) => {
+                if (filterValues.length === 0) return true;
+    
+                return filterValues.some(value =>
+                    product[filterType] === value.toLowerCase()
+                );
+            });
+        });
+    }, [products, searchParams, filters]);
+    
     // classes
     const shopContainers = classNames(
-        'grid grid-cols-shop p-5 gap-2 space-y-5'
+        'grid md:grid-cols-shop p-5 gap-2 space-y-5'
     )
 
     const filterContainer = classNames(
@@ -113,30 +113,47 @@ const Shop = () => {
                     {renderFilters()}
                 </div>
                 <div className={productsContainer}>
-                    <h2>products</h2>
-                    <div className="grid grid-cols-3 gap-2">
-                        {products
-                            .map(product => (
-                            <ProductCard key={product.id} {...product} className="flex flex-col gap-3 bg-custom-accent p-3 min-w-[200px]">
-                            <div className="relative">
-                                 <ProductCard.Image />
-                                 <ProductCard.DiscountBadge className="absolute top-1 left-1" />
-                                 <ProductCard.Action className='absolute top-1 right-1'>
-                                     <ProductCard.ToWishList />
-                                     <ProductCard.ToDetail />
-                                     <ProductCard.AddToCart />
-                                 </ProductCard.Action>
-                            </div>
-                            <div className="flex flex-col">
-                                 <div className="flex justify-between">
-                                     <ProductCard.Type />
-                                     <ProductCard.Rating />
-                                 </div>
-                                 <ProductCard.Name />
-                                 <ProductCard.Price />
-                            </div>
-                         </ProductCard>
-                        ))}
+                    {searchParams.toString() && (
+                        <button
+                            className="bg-custom-dark p-2 text-white"
+                            onClick={() => setSearchParams(new URLSearchParams())}
+                        >
+                            Clear filter
+                        </button>
+                    )}
+
+                    <div className="grid md:grid-cols-3 max-35:grid-cols-1 gap-2">
+                        {displayProducts.length > 0 ? (
+                            displayProducts.map(product => (
+                              
+                                    <ProductCard
+                                        key={product.id}
+                                        {...product}
+                                        className="flex flex-col gap-3 bg-custom-accent p-3 min-w-[200px] h-[550px]"
+                                    >
+                                        <div className="relative">
+                                        <ProductCard.Image />
+                                        <ProductCard.DiscountBadge className="absolute top-1 left-1" />
+                                        <ProductCard.Action className="absolute top-1 right-1">
+                                            <ProductCard.ToWishList onClick={() => handleFav(product)}/>
+                                            <Link className="flex items-center justify-center bg-white rounded-full p-3 active:bg-custom-orange" to={`${product.id}`}>
+                                                <ProductCard.ToDetail />
+                                            </Link>
+                                            <ProductCard.AddToCart onClick={() => handleCart(product)} />
+                                        </ProductCard.Action>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between">
+                                                <ProductCard.Type />
+                                                <ProductCard.Rating />
+                                            </div>
+                                            <ProductCard.Name />
+                                            <ProductCard.Price />
+                                        </div>
+                                    </ProductCard>
+                                ))
+                            ) : (
+                            <p>No products match the selected filters.</p>)}
                     </div>
                 </div>
            </div>

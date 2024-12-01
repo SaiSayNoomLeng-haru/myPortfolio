@@ -66,4 +66,4 @@ const Faq = () => {
     )
 }
 
-export default memo(Faq);
+export default memo(Faq)

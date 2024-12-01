@@ -2,14 +2,25 @@ import classNames from "classnames";
 import { Link, NavLink } from "react-router-dom";
 import { BsCart2 } from 'react-icons/bs';
 import { TiHeart } from 'react-icons/ti';
-import { PiMagnifyingGlassLight } from 'react-icons/pi';
 import { TiUserOutline } from "react-icons/ti";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoCloseSharp } from 'react-icons/io5'
+import { AppContext } from "../App";
 
 export default function Header(){
     const [ navOpen, setNavOpen ] = useState(false);
+    const { cart, favorite } = useContext(AppContext);
+    const cartArr = Object.values(cart).map(value => value);
+    const favArr = Object.values(favorite).map(v => v);
+
+    const cartCount = cartArr.reduce((acc, value) => (
+        acc + value.quantity
+    ), 0)
+    
+    const favCount = favArr.filter(fav => fav.favorited).reduce((acc, value) => (
+        acc + value.favorited
+    ), 0)
 
     const handleNav = () => {
         setNavOpen(prevOpen => !prevOpen);
@@ -17,7 +28,7 @@ export default function Header(){
 
     // classes
     const headerClass = classNames(
-        'flex p-5 justify-between items-center gap-4 font-poppins'
+        'flex py-5 px-10 justify-between items-center gap-4 font-poppins'
     );
 
     const mainNavClass = classNames(
@@ -32,19 +43,11 @@ export default function Header(){
     );
 
     const activeNavLink = classNames(
-        'underline',
-        'underline-offset-2',
-        'font-semibold'
+        'underline underline-offset-2 font-semibold'
     );
 
     const navToggle = classNames(
-        'md:hidden',
-        'max-35:block',
-        'max-35:z-20',
-        'max-35:top-4',
-        'max-35:right-4',
-        'text-3xl',
-        'max-35:order-last'
+        'md:hidden max-35:block max-35:z-20 max-35:top-4 max-35:right-4 text-3xl max-35:order-last'
         ,
         {
             'max-35:text-white' : navOpen,
@@ -52,24 +55,17 @@ export default function Header(){
             'max-35:rotate-180' : navOpen,
             'max-35:fixed': navOpen
         },
-        'transition',
-        'duration-500',
-        'ease-in-out'
+        'transition duration-500 ease-in-out'
     )
 
     const navIconLinks = classNames(
-        'flex',
-        'items-center',
-        'gap-2',
-        'md:gap-5',
-        'md:text-3xl',
-        'text-xl'
+        'flex items-center gap-2 md:gap-5 text-3xl'
     )
 
     return(
         <header className={headerClass}>
             <Link to='/'>
-                <img src="./assets/images/logo.png" alt="Haru Clothing Logo" aria-label="Haru Clothing Logo" loading="lazy" className="max-w-[9rem]"/>
+                <img src="/assets/images/logo.png" alt="Haru Clothing Logo" aria-label="Haru Clothing Logo" loading="lazy" className="max-w-[4rem]"/>
             </Link>
 
             <button 
@@ -94,7 +90,7 @@ export default function Header(){
                 </NavLink>
 
                 <NavLink 
-                 to='shop' 
+                 to='products' 
                  className={({isActive}) => isActive ? activeNavLink : ''}
                  onClick={handleNav}>
                     Shop
@@ -115,7 +111,7 @@ export default function Header(){
                 </NavLink>
 
                 <NavLink 
-                 to='blog' 
+                 to='blogs' 
                  className={({isActive}) => isActive ? activeNavLink : ''}
                  onClick={handleNav}>
                     Blog
@@ -130,14 +126,23 @@ export default function Header(){
             </nav>
 
             <div className={navIconLinks}>
-               <PiMagnifyingGlassLight />
-
-               <Link to='wishlist'>
+               <Link to='wishlist' className="relative">
                     <TiHeart />
+                    {favCount > 0 ? (
+                       <div className="absolute w-[25px] h-[25px] bg-red-800 rounded-full text-white top-[-.5rem] right-[-.5rem] z-10">
+                            <p className="absolute z-20 text-[.8rem] font-bold top-[-.3rem] left-[.6rem]">{favCount}</p>
+                       </div>
+                    ): null}
                </Link>
 
-                <Link to='cart'>
+                <Link to='cart' className="relative">
                     <BsCart2 />
+                    {cartCount > 0 ? (
+                       <div className="absolute w-[25px] h-[25px] bg-red-800 rounded-full text-white top-[-.5rem] right-[-.5rem] z-10">
+                            <p className="absolute z-20 text-[.8rem] font-bold top-[-.3rem] left-[.6rem]">{cartCount}</p>
+                       </div>
+                    ): null}
+                   
                 </Link>
 
                <Link to='sign-in'>

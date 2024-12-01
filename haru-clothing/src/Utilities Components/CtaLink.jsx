@@ -5,11 +5,7 @@ import { Link } from "react-router-dom";
 
 export default function CtaLink({linkTo, className = '',}){
     const ctaClass = classNames(
-        'inline-block',
-        'bg-custom-dark',
-        'text-white',
-        'px-5',
-        'py-3',
+        'inline-block bg-custom-dark text-white px-5 py-3',
         className
     )
     return(
