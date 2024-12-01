@@ -10,9 +10,10 @@
 ---
 
 ### Project Lists
-|   Project Name    |   Started Date  |    Finished Date   |    Notes   |
-|-------------------|-----------------|--------------------|------------|
-|   Haru Clothing   | Nov 17, 2024    |                    |            |
+|   Project Name       |   Started Date  |    Finished Date   |    Notes   |
+|----------------------|-----------------|--------------------|------------|
+|   Haru Clothing      | Nov 17, 2024    |  Nov 30, 2024      |            |
+|  Personal Portfolio  | Dec 1, 2024     |                    |            |
 
 ---
 
@@ -33,5 +34,6 @@
 | Frontend Development              |           Scrimba         |   Specialization  |
 | Learn to Work with APIs           |           Scrimba         |   Specialization  |
 | Responsive Design                 |           Scrimba         |   Specialization  |
-| UI design for Web Developers      |           Scrimba         |   Specialization  |  
+| UI design for Web Developers      |           Scrimba         |   Specialization  |
+| Google UX Design                  |           Scrimba         |   Specialization  |    
 
