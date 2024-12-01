@@ -8,9 +8,7 @@ export default function BlogCardBody(){
         <div>
         <h2 className="font-semibold text-xl">{title}</h2>
         <p>{displayContent}</p>
-        <Link 
-        to='blog'
-        className="underline font-semibold mt-5 inline-block">Read More</Link>
+        <p className="underline">Read More</p>
     </div>
     )
 }

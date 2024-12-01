@@ -3,9 +3,7 @@ import { FaExpandArrowsAlt } from "react-icons/fa"
 
 export default function ToDetail({className = ''}){
     const toDetailClass = classNames(
-        'p-3',
-        'bg-white',
-        'rounded-full',
+       'cursor-pointer active:bg-custom-orange',
         className
     )
     return(

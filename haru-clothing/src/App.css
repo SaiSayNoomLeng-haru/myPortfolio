@@ -72,3 +72,10 @@ input[type='radio']{
     background-clip: text;
     -webkit-background-clip: text;
 }
+
+.divider{
+    width: 80%;
+    height: 1px;
+    background-color: gray;
+    margin-inline: auto;
+}

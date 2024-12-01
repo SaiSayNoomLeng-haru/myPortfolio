@@ -1,6 +1,8 @@
 import { useContext } from "react";
 import { ProductCardContext } from "./ProductCard";
 import classNames from "classnames";
+import { getProductDetail } from "../../Api";
+
 
 export default function ProductDetail(){
     const { productDetail } = useContext(ProductCardContext);

@@ -44,7 +44,8 @@ export default function Footer(){
         <footer className={footerClass}>
             <Link to='/' 
              className="md:col-start-1 md:col-end-3 md:row-end-2 md:place-self-center">
-                <img src="/assets/images/logo.png" alt="Haru Clothing Logo Image" aria-label="Haru Clothing Logo Image" />
+                <img src="/assets/images/logo.png" alt="Haru Clothing Logo Image" aria-label="Haru Clothing Logo Image"
+                className="max-w-[4rem]" />
             </Link>
 
             <p className="md:col-start-1 md:row-start-2 md:col-end-3 md:text-justify">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum, dolores. Ducimus libero, ullam assumenda obcaecati, expedita asperiores ipsam repellendus unde, minima repellat quod laudantium delectus cupiditate? Nobis earum ad quam.</p>
